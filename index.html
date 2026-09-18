@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#04060E">
+<meta name="description" content="Un cielo con 35 estrellas. Cada una es una razón.">
+<meta name="robots" content="noindex, nofollow">
+<title>El cielo de Sara Eunice</title>
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23060A18'/%3E%3Cpath d='M16 6l2 7 7 2-7 2-2 7-2-7-7-2 7-2z' fill='%23F0C462'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=EB+Garamond:ital,wght@0,400;1,400&family=Karla:wght@400;500&display=swap">
+
+<style>
+/* ============================================================
+   PALETA · tomada del documento de diseño
+   ============================================================ */
+:root{
+  --noche:    #04060E;  /* fondo de la apertura */
+  --cielo:    #060A18;  /* fondo del cielo      */
+  --panel:    #0E1530;  /* tarjeta, al 82%      */
+  --neb-roja: #B3253F;  /* su color             */
+  --neb-azul: #1F4FB0;  /* mi color             */
+  --blanco:   #FBF3E4;  /* estrellas y texto    */
+  --oro:      #F0C462;  /* una sola estrella    */
+  --texto2:   #9BA3BD;  /* nombres, rótulos     */
+
+  --serif:  "Cormorant Garamond", Georgia, serif;
+  --serif2: "EB Garamond", Georgia, serif;
+  --sans:   "Karla", system-ui, -apple-system, sans-serif;
+
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--noche)}
+body{
+  font-family:var(--sans);
+  color:var(--blanco);
+  overscroll-behavior:none;
+  -webkit-user-select:none;user-select:none;
+  -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+
+/* rótulo en versales con tracking, como en el diseño */
+.rotulo{
+  font-family:var(--sans);font-weight:500;
+  font-size:10px;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--texto2);
+}
+
+/* viñeta: cierra los bordes para que el texto respire */
+#vineta{
+  position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse 78% 62% at 50% 48%,
+    rgba(0,0,0,0) 34%, rgba(4,6,14,.5) 74%, rgba(4,6,14,.88) 100%);
+}
+
+#cielo{position:fixed;inset:0;z-index:1;touch-action:none;display:block}
+
+/* ============================================================
+   1 · APERTURA
+   ============================================================ */
+#apertura{
+  position:fixed;inset:0;z-index:40;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:calc(var(--safe-t) + 32px) 30px calc(var(--safe-b) + 32px);
+  background:var(--noche);
+  text-align:center;
+  transition:opacity 1.6s var(--ease), visibility 1.6s;
+}
+#apertura.fuera{opacity:0;visibility:hidden;pointer-events:none}
+
+.ap-versiculo{
+  font-family:var(--serif);font-weight:400;
+  font-size:clamp(25px,7.2vw,34px);line-height:1.45;
+  max-width:19ch;
+  text-wrap:balance;
+}
+.ap-cita{margin-top:26px;line-height:1.7}
+.ap-regla{
+  width:44px;height:1px;margin:30px auto;
+  background:linear-gradient(90deg,transparent,rgba(251,243,228,.38),transparent);
+}
+.ap-saludo{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:clamp(17px,4.8vw,21px);line-height:1.5;
+  color:rgba(251,243,228,.88);
+  max-width:16ch;
+}
+.ap-entrar{
+  position:absolute;left:50%;transform:translateX(-50%);
+  bottom:calc(var(--safe-b) + 30px);
+  padding:16px 26px;
+}
+.ap-entrar .rotulo{color:rgba(155,163,189,.75)}
+.ap-entrar:active{opacity:.55}
+.parpadeo{animation:latir 3.4s ease-in-out infinite}
+@keyframes latir{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* entrada escalonada de la apertura */
+.aparece{opacity:0;transform:translateY(10px);animation:subir 2.2s var(--ease) forwards}
+@keyframes subir{to{opacity:1;transform:translateY(0)}}
+.d1{animation-delay:.35s}.d2{animation-delay:1.5s}.d3{animation-delay:2.1s}
+.d4{animation-delay:3.0s}.d5{animation-delay:4.0s}
+
+/* ============================================================
+   INTERFAZ DEL CIELO
+   ============================================================ */
+.ui{position:fixed;z-index:20;opacity:0;transition:opacity 1.4s var(--ease)}
+.ui.visible{opacity:1}
+.ui.oculto{opacity:0 !important;pointer-events:none}
+
+#contador{
+  bottom:calc(var(--safe-b) + 16px);right:14px;
+  padding:9px 13px;border-radius:999px;
+  display:flex;align-items:baseline;gap:6px;
+  background:rgba(14,21,48,.42);
+  border:1px solid rgba(155,163,189,.13);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+#contador b{font-weight:500;font-size:11.5px;letter-spacing:.12em;color:rgba(251,243,228,.92)}
+#contador span{font-size:9px;letter-spacing:.24em}
+#contador:active{opacity:.6}
+
+#titulo-cielo{
+  top:calc(var(--safe-t) + 18px);left:0;right:0;
+  text-align:center;pointer-events:none;
+}
+#titulo-cielo em{
+  display:block;margin-top:7px;
+  font-family:var(--serif);font-style:italic;font-size:17px;
+  color:rgba(251,243,228,.8);line-height:1.35;
+}
+
+/* versículo de la constelación enfocada */
+#foco{
+  left:0;right:0;top:calc(var(--safe-t) + 88px);
+  text-align:center;padding:0 34px;pointer-events:none;
+  transition:opacity .9s var(--ease), transform .9s var(--ease);
+  transform:translateY(-6px);
+}
+#foco.visible{transform:translateY(0)}
+#foco .f-nombre{font-size:10.5px;letter-spacing:.3em;color:rgba(251,243,228,.75)}
+#foco .f-verso{
+  margin-top:10px;
+  font-family:var(--serif);font-style:italic;font-weight:300;
+  font-size:15.5px;line-height:1.55;color:rgba(251,243,228,.6);
+  max-width:30ch;margin-left:auto;margin-right:auto;text-wrap:balance;
+}
+#foco .f-cita{margin-top:8px;font-size:9px;letter-spacing:.22em;color:rgba(155,163,189,.6)}
+
+#musica{
+  left:14px;bottom:calc(var(--safe-b) + 16px);
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(14,21,48,.42);
+  border:1px solid rgba(155,163,189,.13);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+#musica svg{width:15px;height:15px;stroke:rgba(155,163,189,.75);fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+#musica.sonando svg{stroke:rgba(240,196,98,.9)}
+#musica:active{opacity:.6}
+
+/* aviso breve (la estrella dorada todavía bloqueada) */
+#aviso{
+  position:fixed;z-index:45;left:50%;bottom:calc(var(--safe-b) + 80px);
+  transform:translate(-50%,10px);
+  padding:13px 20px;border-radius:999px;
+  background:rgba(14,21,48,.88);
+  border:1px solid rgba(240,196,98,.2);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  font-family:var(--serif2);font-style:italic;font-size:15px;
+  color:rgba(251,243,228,.9);white-space:nowrap;max-width:92vw;
+  opacity:0;pointer-events:none;
+  transition:opacity .5s var(--ease), transform .5s var(--ease);
+}
+#aviso.visible{opacity:1;transform:translate(-50%,0)}
+
+/* ============================================================
+   3 · TARJETA DE RAZÓN (hoja que sube desde abajo)
+   ============================================================ */
+#velo{
+  position:fixed;inset:0;z-index:28;
+  background:rgba(4,6,14,.35);
+  opacity:0;visibility:hidden;
+  transition:opacity .5s var(--ease), visibility .5s;
+}
+#velo.visible{opacity:1;visibility:visible}
+
+#hoja{
+  position:fixed;z-index:30;left:0;right:0;bottom:0;
+  padding:12px 28px calc(var(--safe-b) + 26px);
+  background:linear-gradient(180deg, rgba(14,21,48,.74) 0%, rgba(10,15,36,.93) 46%, rgba(8,12,30,.97) 100%);
+  border-top:1px solid rgba(155,163,189,.16);
+  border-radius:22px 22px 0 0;
+  backdrop-filter:blur(18px) saturate(1.1);-webkit-backdrop-filter:blur(18px) saturate(1.1);
+  box-shadow:0 -22px 60px rgba(4,6,14,.5);
+  transform:translateY(102%);
+  transition:transform .62s var(--ease);
+  touch-action:none;
+}
+#hoja.abierta{transform:translateY(0)}
+#hoja .asa{
+  width:38px;height:3px;border-radius:2px;margin:0 auto 20px;
+  background:rgba(155,163,189,.32);
+}
+#hoja .cabecera{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+#hoja .h-origen .rotulo{display:block;font-size:10px;letter-spacing:.28em}
+#hoja .h-num{
+  display:block;margin-top:5px;
+  font-family:var(--sans);font-size:10px;letter-spacing:.2em;
+  color:rgba(155,163,189,.55);
+}
+#cerrar-hoja{
+  width:34px;height:34px;margin:-6px -8px 0 0;
+  display:flex;align-items:center;justify-content:center;flex:none;
+}
+#cerrar-hoja svg{width:16px;height:16px;stroke:rgba(251,243,228,.6);stroke-width:1.3;stroke-linecap:round}
+#cerrar-hoja:active{opacity:.5}
+
+#hoja .razon{
+  font-family:var(--serif2);font-style:italic;font-weight:400;
+  font-size:clamp(20px,5.7vw,24px);line-height:1.52;
+  color:rgba(251,243,228,.96);
+  text-align:center;text-wrap:balance;
+  padding:34px 4px 30px;
+  min-height:30vh;
+  display:flex;align-items:center;justify-content:center;
+}
+#hoja .pie{display:flex;align-items:center;justify-content:center;gap:12px}
+#hoja .pie i{display:block;width:26px;height:1px;background:rgba(155,163,189,.25)}
+#hoja .pie .rotulo{font-size:9px;letter-spacing:.24em;color:rgba(155,163,189,.5)}
+
+/* ============================================================
+   MENSAJE DE LA ESTRELLA DORADA
+   ============================================================ */
+#carta{
+  position:fixed;inset:0;z-index:50;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  background:linear-gradient(180deg, rgba(4,6,14,.94) 0%, rgba(8,12,30,.97) 100%);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  opacity:0;visibility:hidden;
+  transition:opacity 1.1s var(--ease), visibility 1.1s;
+  padding:calc(var(--safe-t) + 64px) 30px calc(var(--safe-b) + 60px);
+}
+#carta.visible{opacity:1;visibility:visible}
+#cerrar-carta{
+  position:fixed;z-index:52;top:calc(var(--safe-t) + 14px);right:12px;
+  width:40px;height:40px;display:flex;align-items:center;justify-content:center;
+  opacity:0;visibility:hidden;transition:opacity 1.1s var(--ease), visibility 1.1s;
+}
+#carta.visible ~ #cerrar-carta{opacity:1;visibility:visible}
+#cerrar-carta svg{width:15px;height:15px;stroke:rgba(240,196,98,.55);stroke-width:1.3;stroke-linecap:round}
+#cerrar-carta:active{opacity:.5}
+#carta .interior{max-width:34rem;margin:0 auto;text-align:center}
+#carta .c-fecha{
+  font-family:var(--serif);font-weight:300;
+  font-size:clamp(30px,8.4vw,40px);line-height:1.2;
+  color:var(--oro);
+}
+#carta .c-rotulo{margin-top:14px}
+#carta .c-regla{
+  width:52px;height:1px;margin:34px auto;
+  background:linear-gradient(90deg,transparent,rgba(240,196,98,.45),transparent);
+}
+#carta .c-cuerpo p{
+  font-family:var(--serif2);font-weight:400;
+  font-size:clamp(17px,4.6vw,19px);line-height:1.78;
+  color:rgba(251,243,228,.87);
+  margin-bottom:1.35em;
+  text-wrap:pretty;
+}
+#carta .c-cuerpo p.suave{color:rgba(251,243,228,.7);font-style:italic}
+#carta .c-firma{
+  margin-top:8px;
+  font-family:var(--serif);font-style:italic;font-size:20px;
+  color:rgba(251,243,228,.9);
+}
+.boton{
+  display:inline-block;margin-top:44px;
+  padding:15px 30px;border-radius:999px;
+  border:1px solid rgba(240,196,98,.34);
+  background:rgba(240,196,98,.05);
+  transition:background .3s, border-color .3s;
+}
+.boton .rotulo{color:rgba(240,196,98,.9);font-size:10px}
+.boton:active{background:rgba(240,196,98,.13)}
+
+/* ============================================================
+   4 · PANTALLA FINAL (la cruz)
+   ============================================================ */
+#final{
+  position:fixed;z-index:25;left:0;right:0;
+  bottom:calc(var(--safe-b) + 34px);
+  padding:0 32px;text-align:center;pointer-events:none;
+  opacity:0;transition:opacity 2.4s var(--ease);
+}
+#final.visible{opacity:1}
+#final .f-frase{
+  font-family:var(--serif);font-weight:300;
+  font-size:clamp(21px,5.9vw,26px);line-height:1.5;
+  color:rgba(251,243,228,.95);
+  max-width:22ch;margin:0 auto;text-wrap:balance;
+}
+#final .f-regla{
+  width:40px;height:1px;margin:26px auto;
+  background:linear-gradient(90deg,transparent,rgba(251,243,228,.35),transparent);
+}
+#final .f-te-amo{
+  font-family:var(--serif);font-style:italic;font-size:18px;
+  color:rgba(251,243,228,.8);line-height:1.45;
+}
+#final .f-fecha{margin-top:22px;font-size:9px;letter-spacing:.24em;color:rgba(155,163,189,.5)}
+
+@media (max-height:680px){
+  #hoja .razon{min-height:24vh;padding:26px 4px 24px}
+  #carta{padding-top:calc(var(--safe-t) + 44px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .parpadeo{animation:none;opacity:.85}
+}
+</style>
+</head>
+<body>
+
+<!-- fondo -->
+<canvas id="cielo"></canvas>
+<div id="vineta" aria-hidden="true"></div>
+
+<!-- 1 · apertura -->
+<section id="apertura">
+  <p class="ap-versiculo aparece d1" id="ap-versiculo"></p>
+  <p class="rotulo ap-cita aparece d2" id="ap-cita"></p>
+  <div class="ap-regla aparece d3"></div>
+  <p class="ap-saludo aparece d4" id="ap-saludo"></p>
+  <button class="ap-entrar aparece d5" id="btn-entrar">
+    <span class="rotulo parpadeo" id="ap-boton"></span>
+  </button>
+</section>
+
+<!-- interfaz -->
+<div class="ui" id="titulo-cielo">
+  <span class="rotulo" id="tc-rotulo"></span>
+  <em id="tc-sub"></em>
+</div>
+
+<button class="ui" id="contador" aria-live="polite">
+  <b id="cont-num">0 / 35</b><span class="rotulo">estrellas</span>
+</button>
+
+<div class="ui" id="foco" aria-hidden="true">
+  <p class="rotulo f-nombre"></p>
+  <p class="f-verso"></p>
+  <p class="rotulo f-cita"></p>
+</div>
+
+<button class="ui" id="musica" aria-label="Música">
+  <svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>
+</button>
+
+<div id="aviso"></div>
+
+<!-- 3 · tarjeta de razón -->
+<div id="velo"></div>
+<section id="hoja" aria-hidden="true">
+  <div class="asa"></div>
+  <div class="cabecera">
+    <div class="h-origen">
+      <span class="rotulo" id="h-constelacion"></span>
+      <span class="h-num" id="h-numero"></span>
+    </div>
+    <button id="cerrar-hoja" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="razon" id="h-texto"></div>
+  <div class="pie"><i></i><span class="rotulo" id="h-pie"></span><i></i></div>
+</section>
+
+<!-- carta de la estrella dorada -->
+<section id="carta">
+  <div class="interior">
+    <p class="c-fecha" id="ca-fecha"></p>
+    <p class="rotulo c-rotulo" id="ca-rotulo"></p>
+    <div class="c-regla"></div>
+    <div class="c-cuerpo" id="ca-cuerpo"></div>
+    <p class="c-firma" id="ca-firma"></p>
+    <button class="boton" id="btn-final"><span class="rotulo" id="ca-boton"></span></button>
+  </div>
+</section>
+<button id="cerrar-carta" aria-label="Volver al cielo">
+  <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+</button>
+
+<!-- 4 · pantalla final -->
+<div id="final">
+  <p class="f-frase" id="fi-frase"></p>
+  <div class="f-regla"></div>
+  <p class="f-te-amo" id="fi-teamo"></p>
+  <p class="rotulo f-fecha" id="fi-fecha"></p>
+</div>
+
+<audio id="audio" loop preload="none" src="./musica.mp3"></audio>
+
+<script>
+/* ==========================================================================
+   ★  C O N T E N I D O  ★
+   --------------------------------------------------------------------------
+   Todo lo que se lee está aquí. Puedes cambiar cualquier texto sin tocar
+   nada de lo que viene después de la marca "MOTOR".
+
+   Reglas que sí importan:
+   · Si agregas o quitas una razón, agrega o quita también su nodo en "nodos"
+     (son las coordenadas de la estrella) y revisa "lineas".
+   · "nodos" son coordenadas dentro de un lienzo de 1000 x 1800. El eje X va
+     de izquierda a derecha, el Y de arriba hacia abajo. La estrella n.º 1 de
+     cada constelación es nodos[0], la n.º 2 es nodos[1], y así.
+   · "lineas" son los pares de estrellas que se unen con una línea:
+     [0,1] une la primera con la segunda.
+   · El total de estrellas con razón se calcula solo. No hay que actualizarlo.
+   ========================================================================== */
+
+const CONTENIDO = {
+
+  /* ---- Datos de ella --------------------------------------------------- */
+  ella: {
+    nombre: "Sara Eunice",
+    cumple: "19 de septiembre"
+  },
+
+  /* ---- 1 · Pantalla de apertura ---------------------------------------- */
+  apertura: {
+    versiculo: "“Él cuenta el número de las estrellas; a todas ellas llama por sus nombres.”",
+    cita: "Salmo 147:4",
+    saludo: "Feliz cumpleaños, Sara Eunice",
+    boton: "Mira el cielo"
+  },
+
+  /* ---- 2 · Rótulos del cielo ------------------------------------------- */
+  cielo: {
+    rotulo: "Tu cielo",
+    // {n} se reemplaza por el número real de estrellas con razón
+    subtitulo: "treinta y cinco razones",
+    pista: "Arrastra · Pellizca para acercar",
+    pistaEscritorio: "Arrastra · Rueda para acercar",
+    piePanel: "Desliza para volver",
+    // Lo que dice la estrella dorada si la tocan antes de tiempo.
+    // {n} se reemplaza por las estrellas que falten.
+    avisoDorada: "Todavía no. Faltan {n} estrellas.",
+    avisoDoradaUna: "Todavía no. Falta una estrella."
+  },
+
+  /* ---- Las 6 constelaciones -------------------------------------------- */
+  constelaciones: [
+
+    /* ========== 1 · LA FE ========== */
+    {
+      nombre: "La fe",
+      versiculo: "Engañosa es la gracia, y vana la hermosura; la mujer que teme a Jehová, ésa será alabada.",
+      cita: "Proverbios 31:30",
+      nodos: [[168,300],[252,212],[348,272],[325,378],[210,392],[150,470]],
+      lineas: [[0,1],[1,2],[2,3],[3,4],[4,0],[4,5]],
+      razones: [
+        "Porque oras por mí cuando crees que no me estoy dando cuenta.",
+        "Porque desde que te conozco busco a Dios más de cerca. No me lo pediste. Se me contagió.",
+        "Porque cuando algo se pone difícil no te hundes: te apoyas. Y te apoyas en el lugar correcto.",
+        "Porque sabes que Cristo te ama, y se te nota. No es algo que digas, es algo que traes puesto.",
+        "Por esas veces que oramos juntos por teléfono y se me olvida que estamos lejos.",
+        "Porque me recuerdas que Dios va primero, sobre todo los días en que el que se está olvidando soy yo."
+      ]
+    },
+
+    /* ========== 2 · LA RISA ========== */
+    {
+      nombre: "La risa",
+      versiculo: "Fuerza y honor son su vestidura; y se ríe de lo por venir.",
+      cita: "Proverbios 31:25",
+      nodos: [[660,300],[745,232],[838,292],[780,382],[688,398],[856,404]],
+      lineas: [[0,1],[1,2],[2,3],[3,4],[4,0],[2,5]],
+      razones: [
+        "Por tu risa. Sí, la escandalosa. Esa. No la cambies.",
+        "Porque eres melosa sin pena, y a mí eso me desarma completo.",
+        "Porque eres chiquita y aun así no me alcanzan los brazos.",
+        "Por tu carita. Te vi y ya. No hubo mucho que pensar.",
+        "Por los apodos: bebé, bubu, nena, princesa, corazoncito. Ninguno te queda del tamaño.",
+        "Porque nos reímos de cosas que nadie más entendería, y así está perfecto."
+      ]
+    },
+
+    /* ========== 3 · LAS MANOS ========== */
+    {
+      nombre: "Las manos",
+      versiculo: "Mujer virtuosa, ¿quién la hallará? Porque su estima sobrepasa largamente a la de las piedras preciosas.",
+      cita: "Proverbios 31:10",
+      nodos: [[118,788],[222,862],[318,798],[148,962],[264,986],[336,906]],
+      lineas: [[0,1],[1,2],[1,4],[4,3],[4,5]],
+      razones: [
+        "“Mujer virtuosa, ¿quién la hallará?”. Yo la hallé. Y ni siquiera la andaba buscando.",
+        "Por la comida que me mandabas cuando yo ni me acordaba de comer.",
+        "Por los dulces que me mandabas con los que vendían en la ESIME. Nunca supiste cómo me componían el día.",
+        "Porque cuidas a la gente en los detalles chiquitos, los que nadie te va a aplaudir.",
+        "Porque te quieres superar, y lo haces sin pisar a nadie.",
+        "Porque siempre quieres aprender algo nuevo. Nunca te he visto conforme, y eso me mueve."
+      ]
+    },
+
+    /* ========== 4 · EL CAMINO ========== */
+    {
+      nombre: "El camino",
+      versiculo: "Mejores son dos que uno; porque si cayeren, el uno levantará a su compañero.",
+      cita: "Eclesiastés 4:9-10",
+      nodos: [[700,758],[812,818],[735,906],[845,962],[762,1050],[868,1106]],
+      lineas: [[0,1],[1,2],[2,3],[3,4],[4,5]],
+      razones: [
+        "Por las 5:30 de la mañana. Yo saliendo de casa, tú del otro lado del teléfono.",
+        "Por los regresos de la ESIME. Cansado, en llamada contigo, y el camino se hacía corto.",
+        "Por Islas. Por los árboles. Por esa tarde en que te pregunté si querías ser mi novia.",
+        "Por los desayunos en Oasis y por comer en Ciencias. Días sencillos que no cambio por nada.",
+        "Por las películas en Rave. Dos pantallas, dos casas, la misma escena.",
+        "Porque estuviste en los semestres feos, en los que no quería contarle a nadie."
+      ]
+    },
+
+    /* ========== 5 · LA VOZ ========== */
+    {
+      nombre: "La voz",
+      versiculo: "Se gozará sobre ti con alegría, callará de amor, se regocijará sobre ti con cánticos.",
+      cita: "Sofonías 3:17",
+      nodos: [[666,1288],[772,1246],[864,1318],[838,1430],[722,1442],[658,1394]],
+      lineas: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0]],
+      razones: [
+        "Porque sirves a Dios cantando, y cuando cantas se te olvida que hay gente viendo.",
+        "Por las llamadas de horas. Y por los silencios dentro de esas llamadas, que también son nuestros.",
+        "Porque cuando nos enojamos, tú eres la que busca la puerta de regreso. Siempre.",
+        "Porque quieres estar en paz con todos. No por miedo: por convicción.",
+        "Porque de la gente que te trata feo tú te quedas con lo bueno. No sé cómo le haces.",
+        "Porque me hablas bonito incluso cuando me tienes que decir algo difícil."
+      ]
+    },
+
+    /* ========== 6 · LA CASA ========== */
+    {
+      nombre: "La casa",
+      versiculo: "Yo y mi casa serviremos a Jehová.",
+      cita: "Josué 24:15",
+      nodos: [[150,1350],[250,1262],[352,1346],[318,1456],[185,1458]],
+      lineas: [[0,1],[1,2],[2,3],[3,4],[4,0]],
+      razones: [
+        "Porque quiero casarme contigo. No algún día con alguien: contigo.",
+        "Porque quiero una casa donde Dios no sea un tema, sino el centro.",
+        "Porque quiero que quien nos vea juntos vea a Cristo antes que a nosotros.",
+        "Porque quiero que nuestra roca sea Él, para que todo lo demás se pueda mover sin que nos caigamos.",
+        "Porque me imagino viejo contigo, y en la escena siempre se oye tu risa de fondo."
+      ]
+    }
+  ],
+
+  /* ---- La estrella dorada ---------------------------------------------- */
+  dorada: {
+    posicion: [500, 1652],   // dónde vive, apartada de las demás
+    fecha: "19 de septiembre",
+    rotulo: "Tu estrella",
+    parrafos: [
+      "El 19 de septiembre el cielo ganó una estrella que yo todavía no conocía. Tardé años en encontrarla, y cuando la encontré ni siquiera estaba buscando: estaba sentado debajo de un árbol en Islas y entendí, de golpe, que mi vida se iba a partir en dos.",
+      "Tu nombre significa princesa victoriosa. No sé si alguien te lo dijo así, pero yo lo veo todos los días. Princesa por cómo Dios te trata. Victoriosa por cómo te levantas. He visto los días en que no querías levantarte, y también vi de dónde sacaste la fuerza. No fue de ti. Eso es lo que más admiro.",
+      "El Salmo 147 dice que Él cuenta el número de las estrellas y a todas ellas las llama por sus nombres. Eso quise hacer aquí. No decirte “te amo” una vez y ya, sino contarte una por una, con nombre y con fecha, las razones. Son treinta y cinco. Son las que cupieron. Hay más, y van a seguir apareciendo, porque no se me acaban.",
+      "Gracias por las 5:30 de la mañana. Gracias por la comida que me mandabas cuando yo ni me acordaba de comer. Gracias por orar por mí cuando yo ni sabía pedir. Gracias por buscarme primero cada vez que nos peleamos. Gracias por cantarle a Dios con esa voz. Gracias por reírte fuerte.",
+      "Quiero casarme contigo. Quiero una casa donde se ore en voz alta. Quiero hijos que te vean a ti y aprendan cómo se ama a Dios sin hacer ruido. Quiero que nuestro matrimonio sea de Él y para Él, y que la gente que nos vea, lo vea a Él.",
+      "Feliz cumpleaños, mi amor. Bebé. Bubu. Princesa. Nena. Corazoncito."
+    ],
+    firma: "Todas tus estrellas ya están contadas.\nY todas dicen lo mismo.",
+    boton: "Mira una última cosa"
+  },
+
+  /* ---- 4 · Pantalla final ---------------------------------------------- */
+  final: {
+    frase: "Ninguna de estas estrellas se me ocurrió hoy. Las fui juntando todo este tiempo.",
+    teAmo: "Mira lo que forman todas juntas.\nTe amo, Sara Eunice.",
+    fecha: "Hecho para tu cumpleaños · 19 de septiembre"
+  },
+
+  /* ---- Ajustes finos (opcional) ---------------------------------------- */
+  ajustes: {
+    estrellasDeFondo: 420,      // decorativas en pantalla grande
+    estrellasDeFondoMovil: 230, // decorativas en celular
+    zoomMaximo: 3.2,            // 1 = cielo completo
+    umbralDeFoco: 1.55          // a partir de este zoom se dibujan las líneas
+  }
+};
+
+/* ==========================================================================
+   ★  M O T O R  ★   (de aquí para abajo, lógica)
+   ========================================================================== */
+(function(){
+"use strict";
+
+/* --- utilidades ------------------------------------------------------- */
+const $ = s => document.querySelector(s);
+const clamp = (v,a,b) => v < a ? a : v > b ? b : v;
+const lerp  = (a,b,t) => a + (b-a)*t;
+const easeOut    = t => 1 - Math.pow(1-t, 3);
+const easeInOut  = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+
+// generador pseudoaleatorio con semilla: el cielo se ve igual cada vez
+function rng(seed){
+  let s = seed >>> 0;
+  return function(){
+    s ^= s << 13; s >>>= 0;
+    s ^= s >> 17;
+    s ^= s << 5;  s >>>= 0;
+    return s / 4294967296;
+  };
+}
+
+const MUNDO_W = 1000, MUNDO_H = 1800;
+const AJ = CONTENIDO.ajustes;
+const reducido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const esTactil = window.matchMedia("(pointer: coarse)").matches
+              || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const esMovil  = esTactil || Math.min(window.innerWidth, window.innerHeight) < 500;
+const flaco    = esMovil || (navigator.hardwareConcurrency || 8) <= 4;
+
+/* --- estado guardado -------------------------------------------------- */
+const LLAVE = "cielo-sara-eunice-v1";
+let guardado = { leidas: [], dorada: false };
+try {
+  if (location.search.indexOf("reset") !== -1) localStorage.removeItem(LLAVE);
+  const raw = localStorage.getItem(LLAVE);
+  if (raw) guardado = Object.assign(guardado, JSON.parse(raw));
+} catch(e){}
+function guardar(){
+  try {
+    localStorage.setItem(LLAVE, JSON.stringify({
+      leidas: estrellas.filter(s => s.leida).map(s => s.n),
+      dorada: doradaAbierta
+    }));
+  } catch(e){}
+}
+
+/* ======================================================================
+   Construcción del cielo
+   ====================================================================== */
+const estrellas = [];   // las que tienen razón
+const grupos    = [];   // constelaciones
+let n = 0;
+
+CONTENIDO.constelaciones.forEach((c, ci) => {
+  const g = {
+    nombre: c.nombre.toUpperCase(),
+    versiculo: c.versiculo,
+    cita: c.cita,
+    indices: [],
+    segmentos: [],
+    prog: 0,        // avance del trazo de las líneas
+    dibujada: false,
+    brillo: 0,      // 0 = de fondo, 1 = enfocada
+    cx: 0, cy: 0
+  };
+  c.razones.forEach((texto, i) => {
+    const p = c.nodos[i] || [500, 900];
+    estrellas.push({
+      n: n++,
+      grupo: ci,
+      texto: texto,
+      wx: p[0], wy: p[1],      // posición original
+      x:  p[0], y:  p[1],      // posición actual (cambia en la cruz)
+      r: 2.0 + (ci === 5 ? .6 : 0) + ((i * 37) % 7) * .08,  // La casa, más brillante
+      fase: (i * 1.7 + ci * 2.3) % 6.28,
+      vel: .55 + ((i * 13) % 9) * .05,
+      leida: false,
+      destello: 0,       // fogonazo al quedar marcada
+      enc: 0,            // encendido 0..1
+      t0: 0,             // retraso de encendido
+      halo: 0            // halo permanente al leerla
+    });
+    g.indices.push(n - 1);
+  });
+  // segmentos con su longitud, para poder trazarlos progresivamente
+  (c.lineas || []).forEach(par => {
+    const a = estrellas[g.indices[par[0]]], b = estrellas[g.indices[par[1]]];
+    if (!a || !b) return;
+    g.segmentos.push({ a: a, b: b, len: Math.hypot(b.wx-a.wx, b.wy-a.wy) });
+  });
+  g.largoTotal = g.segmentos.reduce((s, x) => s + x.len, 0) || 1;
+  // centro del grupo (para el rótulo y para saber si está centrada)
+  let sx = 0, sy = 0, maxY = -1e9;
+  g.indices.forEach(i => {
+    sx += estrellas[i].wx; sy += estrellas[i].wy;
+    maxY = Math.max(maxY, estrellas[i].wy);
+  });
+  g.cx = sx / g.indices.length; g.cy = sy / g.indices.length; g.maxY = maxY;
+  grupos.push(g);
+});
+
+const TOTAL = estrellas.length;
+estrellas.forEach(s => { if (guardado.leidas.indexOf(s.n) !== -1) { s.leida = true; s.halo = 1; } });
+
+// la estrella dorada
+const dorada = {
+  wx: CONTENIDO.dorada.posicion[0], wy: CONTENIDO.dorada.posicion[1],
+  x:  CONTENIDO.dorada.posicion[0], y:  CONTENIDO.dorada.posicion[1],
+  r: 5.2, enc: 0
+};
+let doradaAbierta = !!guardado.dorada;
+
+/* --- estrellas decorativas (no se pueden tocar) ------------------------ */
+const fondo = [];
+(function(){
+  const cuantas = flaco ? AJ.estrellasDeFondoMovil : AJ.estrellasDeFondo;
+  const r = rng(20250919);
+  for (let i = 0; i < cuantas; i++){
+    const prof = .48 + r() * .52;              // profundidad -> parallax
+    // u y v van de -1 a 1 y se reparten sobre la ventana, no sobre el mundo:
+    // así el cielo se llena igual en un celular vertical que en una pantalla ancha
+    fondo.push({
+      u: r()*2 - 1,
+      v: r()*2 - 1,
+      prof: prof,
+      r: (.35 + r() * .95) * prof,
+      a: .18 + r() * .5,
+      fase: r() * 6.28,
+      vel: .35 + r() * .9,
+      enc: 0,
+      t0: r() * (reducido ? .6 : 3.2)
+    });
+  }
+})();
+
+/* ======================================================================
+   Lienzo y sprites
+   ====================================================================== */
+const cv = $("#cielo"), ctx = cv.getContext("2d", { alpha: true });
+let cw = 0, ch = 0, DPR = 1, ajuste = 1;
+
+function medir(){
+  cw = window.innerWidth; ch = window.innerHeight;
+  DPR = Math.min(window.devicePixelRatio || 1, flaco ? 1.75 : 2);
+  cv.width  = Math.round(cw * DPR);
+  cv.height = Math.round(ch * DPR);
+  cv.style.width  = cw + "px";
+  cv.style.height = ch + "px";
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  // zoom 1 = cielo completo, con un margen para que no quede pegado a los
+  // bordes, y un pequeño sesgo hacia arriba para dejar sitio a la interfaz
+  // de abajo (importante en pantallas cortas tipo iPhone SE)
+  ajuste = Math.min(cw / MUNDO_W, ch / MUNDO_H) * .94;
+  hogarY = MUNDO_H/2 + 12 / ajuste;
+  if (modoFinal > 0){
+    // si gira el teléfono durante el final, el corazón se vuelve a encuadrar
+    const e = encuadreFinal();
+    if (!tween){ cam.x = e.x; cam.y = e.y; cam.k = e.k; }
+    else { tween.a = e; }
+    escala = ajuste * cam.k;
+  } else {
+    limitarCamara();
+  }
+}
+
+// sprites pre-dibujados: mucho más barato que sombras por estrella
+function hacerSprite(px, paradas){
+  const c = document.createElement("canvas");
+  c.width = c.height = px;
+  const g = c.getContext("2d");
+  const gr = g.createRadialGradient(px/2, px/2, 0, px/2, px/2, px/2);
+  paradas.forEach(p => gr.addColorStop(p[0], p[1]));
+  g.fillStyle = gr; g.fillRect(0, 0, px, px);
+  return c;
+}
+const SP = {
+  resplandor: hacerSprite(128, [[0,"rgba(251,243,228,.40)"],[.18,"rgba(238,235,255,.17)"],[.45,"rgba(180,200,255,.05)"],[1,"rgba(180,200,255,0)"]]),
+  nucleo:     hacerSprite(64,  [[0,"rgba(255,252,246,1)"],[.28,"rgba(251,243,228,.85)"],[.62,"rgba(226,232,255,.18)"],[1,"rgba(226,232,255,0)"]]),
+  oroRes:     hacerSprite(128, [[0,"rgba(240,196,98,.50)"],[.2,"rgba(240,180,80,.22)"],[.5,"rgba(220,150,60,.06)"],[1,"rgba(220,150,60,0)"]]),
+  oroNuc:     hacerSprite(64,  [[0,"rgba(255,246,222,1)"],[.26,"rgba(240,196,98,.9)"],[.62,"rgba(232,180,76,.2)"],[1,"rgba(232,180,76,0)"]]),
+  rosaRes:    hacerSprite(128, [[0,"rgba(255,142,175,.58)"],[.18,"rgba(246,102,142,.26)"],[.45,"rgba(220,70,112,.07)"],[1,"rgba(220,70,112,0)"]]),
+  rosaNuc:    hacerSprite(64,  [[0,"rgba(255,249,251,1)"],[.26,"rgba(255,188,208,1)"],[.62,"rgba(248,128,166,.28)"],[1,"rgba(248,128,166,0)"]]),
+  aro:        hacerSprite(96,  [[0,"rgba(255,150,178,0)"],[.46,"rgba(255,150,178,0)"],[.62,"rgba(255,162,188,.30)"],[.78,"rgba(255,162,188,.10)"],[1,"rgba(255,162,188,0)"]])
+};
+function pintar(sp, x, y, radio, alfa){
+  if (alfa <= .004 || radio <= 0) return;
+  ctx.globalAlpha = alfa;
+  ctx.drawImage(sp, x - radio, y - radio, radio*2, radio*2);
+}
+
+
+/* ======================================================================
+   Nebulosas
+   ----------------------------------------------------------------------
+   No son manchas redondas: cada nube se fabrica una sola vez juntando
+   muchas manchas irregulares alrededor de unos pocos núcleos, y después se
+   le abren calles de polvo oscuro, que es lo que le da forma de nebulosa
+   de verdad. Ya hecha la textura, dibujarla cuesta una sola operación por
+   cuadro, así que no pesa en un celular.
+   ====================================================================== */
+function tejerNebulosa(w, h, rgb, semilla){
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const g = c.getContext("2d");
+  const r = rng(semilla);
+  const menor = Math.min(w, h);
+
+  function mancha(x, y, rad, alfa, achata, giro){
+    g.save();
+    g.translate(x, y); g.rotate(giro); g.scale(1, achata);
+    const gr = g.createRadialGradient(0, 0, 0, 0, 0, rad);
+    gr.addColorStop(0,   "rgba(" + rgb + "," + alfa.toFixed(4) + ")");
+    gr.addColorStop(.38, "rgba(" + rgb + "," + (alfa*.52).toFixed(4) + ")");
+    gr.addColorStop(.72, "rgba(" + rgb + "," + (alfa*.14).toFixed(4) + ")");
+    gr.addColorStop(1,   "rgba(" + rgb + ",0)");
+    g.fillStyle = gr;
+    g.beginPath(); g.arc(0, 0, rad, 0, 6.2832); g.fill();
+    g.restore();
+  }
+
+  // unos pocos núcleos: el gas se agrupa alrededor de ellos
+  const nucleos = [];
+  const cuantos = 3 + Math.floor(r()*3);
+  for (let i = 0; i < cuantos; i++){
+    nucleos.push({
+      x: w*(.30 + r()*.40),
+      y: h*(.28 + r()*.44),
+      rad: menor*(.15 + r()*.15)
+    });
+  }
+
+  g.globalCompositeOperation = "lighter";
+
+  // gas: manchas alargadas repartidas en campana alrededor de cada núcleo
+  for (let i = 0; i < 170; i++){
+    const n = nucleos[(r()*nucleos.length)|0];
+    const d1 = (r()+r()+r()-1.5) * 1.55;
+    const d2 = (r()+r()+r()-1.5) * 1.25;
+    mancha(n.x + d1*n.rad, n.y + d2*n.rad,
+           menor*(.05 + r()*r()*.22),
+           .028 + r()*.060,
+           .42 + r()*.8,
+           r()*3.1416);
+  }
+  // filamentos: hebras muy estiradas que cruzan la nube
+  for (let i = 0; i < 26; i++){
+    const n = nucleos[(r()*nucleos.length)|0];
+    mancha(n.x + (r()*2-1)*n.rad*1.9, n.y + (r()*2-1)*n.rad*1.5,
+           menor*(.16 + r()*.24),
+           .017 + r()*.028,
+           .09 + r()*.16,
+           r()*3.1416);
+  }
+  // corazón caliente: el centro brilla un poco más
+  const n0 = nucleos[0];
+  for (let i = 0; i < 9; i++){
+    mancha(n0.x + (r()*2-1)*n0.rad*.5, n0.y + (r()*2-1)*n0.rad*.4,
+           menor*(.05 + r()*.09), .075 + r()*.085, .55 + r()*.6, r()*3.1416);
+  }
+
+  // calles de polvo: huecos oscuros que recortan la nube
+  g.globalCompositeOperation = "destination-out";
+  for (let i = 0; i < 16; i++){
+    const n = nucleos[(r()*nucleos.length)|0];
+    g.save();
+    g.translate(n.x + (r()*2-1)*n.rad*1.7, n.y + (r()*2-1)*n.rad*1.5);
+    g.rotate(r()*3.1416);
+    g.scale(1, .10 + r()*.3);
+    const rad = menor*(.12 + r()*.3);
+    const gr = g.createRadialGradient(0,0,0,0,0,rad);
+    const op = .35 + r()*.45;
+    gr.addColorStop(0, "rgba(0,0,0," + op.toFixed(3) + ")");
+    gr.addColorStop(.55, "rgba(0,0,0," + (op*.4).toFixed(3) + ")");
+    gr.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = gr;
+    g.beginPath(); g.arc(0,0,rad,0,6.2832); g.fill();
+    g.restore();
+  }
+
+  // los bordes de la textura se desvanecen: nunca debe verse el rectángulo
+  const vg = g.createRadialGradient(w/2, h/2, menor*.20, w/2, h/2, Math.max(w,h)*.55);
+  vg.addColorStop(0, "rgba(0,0,0,0)");
+  vg.addColorStop(.72, "rgba(0,0,0,.6)");
+  vg.addColorStop(1, "rgba(0,0,0,1)");
+  g.fillStyle = vg; g.fillRect(0, 0, w, h);
+
+  g.globalCompositeOperation = "source-over";
+  return c;
+}
+
+const NEB_W = flaco ? 440 : 660;
+const nebulosas = [
+  { // la roja: su color
+    tex: tejerNebulosa(NEB_W, Math.round(NEB_W*.82), "196,48,74", 977001),
+    cx: .33, cy: .44, esc: 1.26, alfa: .95, prof: .26,
+    vx: .017, vy: .013, f1: .7, f2: 2.1, amp: 26
+  },
+  { // la azul: la mía
+    tex: tejerNebulosa(NEB_W, Math.round(NEB_W*.86), "42,96,206", 977002),
+    cx: .67, cy: .56, esc: 1.30, alfa: .95, prof: .22,
+    vx: .012, vy: .017, f1: 3.4, f2: .9, amp: 30
+  },
+  { // una violeta chiquita arriba, solo para dar fondo
+    tex: tejerNebulosa(Math.round(NEB_W*.7), Math.round(NEB_W*.5), "126,72,168", 977003),
+    cx: .50, cy: .13, esc: .85, alfa: .55, prof: .32,
+    vx: .009, vy: .011, f1: 1.9, f2: 4.2, amp: 20
+  }
+];
+
+let nebAlfa = 0, nebMeta = 0;
+
+function dibujarNebulosas(t, dt){
+  nebAlfa = lerp(nebAlfa, nebMeta, 1 - Math.pow(.14, dt/1000));
+  if (nebAlfa <= .004) return;
+  ctx.globalCompositeOperation = "lighter";
+  const zoomNeb = Math.pow(cam.k, .22);
+  for (const n of nebulosas){
+    const ancho = cw * n.esc * zoomNeb;
+    const alto  = ancho * (n.tex.height / n.tex.width);
+    const x = cw*n.cx - ancho/2
+            + (MUNDO_W/2 - cam.x) * escala * n.prof
+            + Math.sin(t*n.vx + n.f1) * n.amp;
+    const y = ch*n.cy - alto/2
+            + (MUNDO_H/2 - cam.y) * escala * n.prof
+            + Math.cos(t*n.vy + n.f2) * n.amp * .7;
+    ctx.globalAlpha = nebAlfa * n.alfa;
+    ctx.drawImage(n.tex, x, y, ancho, alto);
+  }
+  ctx.globalCompositeOperation = "source-over";
+  ctx.globalAlpha = 1;
+}
+
+/* ======================================================================
+   Cámara
+   ====================================================================== */
+const cam = { x: MUNDO_W/2, y: MUNDO_H/2, k: 1, vx: 0, vy: 0 };
+let escala = 1, hogarY = MUNDO_H/2;
+let tween = null;
+
+function limitarCamara(){
+  escala = ajuste * cam.k;
+  const margen = 70;
+  const anchoVis = cw / escala, altoVis = ch / escala;
+  const mx = Math.max(0, (MUNDO_W - anchoVis)/2) + margen;
+  const my = Math.max(0, (MUNDO_H - altoVis)/2) + margen;
+  cam.x = clamp(cam.x, MUNDO_W/2 - mx, MUNDO_W/2 + mx);
+  cam.y = clamp(cam.y, hogarY - my, hogarY + my);
+}
+const aPantallaX = wx => (wx - cam.x) * escala + cw/2;
+const aPantallaY = wy => (wy - cam.y) * escala + ch/2;
+const aMundoX = px => cam.x + (px - cw/2) / escala;
+const aMundoY = py => cam.y + (py - ch/2) / escala;
+
+function irA(x, y, k, dur){
+  tween = { t0: performance.now(), dur: dur || 900,
+    de: { x: cam.x, y: cam.y, k: cam.k },
+    a:  { x: x, y: y, k: k } };
+  cam.vx = cam.vy = 0;
+}
+
+/* ======================================================================
+   Interacción: arrastrar con inercia, pellizcar, tocar
+   ====================================================================== */
+const punteros = new Map();
+let arrastre = null, pellizco = null, bloqueado = false;
+let ultimoToque = 0, ultimoX = 0, ultimoY = 0;
+let huboGesto = false;
+
+cv.addEventListener("pointerdown", e => {
+  if (bloqueado) return;
+  cv.setPointerCapture(e.pointerId);
+  punteros.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  tween = null;
+  if (punteros.size === 1){
+    arrastre = { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY,
+                 t0: performance.now(), movido: 0, ult: performance.now() };
+    cam.vx = cam.vy = 0;
+  } else if (punteros.size === 2){
+    arrastre = null;
+    pellizco = nuevoPellizco();
+  }
+});
+
+function nuevoPellizco(){
+  const p = [...punteros.values()];
+  const mx = (p[0].x + p[1].x)/2, my = (p[0].y + p[1].y)/2;
+  return {
+    d0: Math.hypot(p[0].x-p[1].x, p[0].y-p[1].y) || 1,
+    k0: cam.k,
+    anclaX: aMundoX(mx), anclaY: aMundoY(my)
+  };
+}
+
+cv.addEventListener("pointermove", e => {
+  if (bloqueado || !punteros.has(e.pointerId)) return;
+  punteros.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+  if (punteros.size >= 2 && pellizco){
+    const p = [...punteros.values()];
+    const d = Math.hypot(p[0].x-p[1].x, p[0].y-p[1].y) || 1;
+    const mx = (p[0].x + p[1].x)/2, my = (p[0].y + p[1].y)/2;
+    cam.k = clamp(pellizco.k0 * (d / pellizco.d0), .96, AJ.zoomMaximo);
+    escala = ajuste * cam.k;
+    cam.x = pellizco.anclaX - (mx - cw/2)/escala;
+    cam.y = pellizco.anclaY - (my - ch/2)/escala;
+    limitarCamara();
+    huboGesto = true;
+    return;
+  }
+
+  if (arrastre){
+    const dx = e.clientX - arrastre.x, dy = e.clientY - arrastre.y;
+    const ahora = performance.now();
+    const dt = Math.max(8, ahora - arrastre.ult);
+    cam.x -= dx / escala; cam.y -= dy / escala;
+    // velocidad en unidades de mundo por milisegundo
+    cam.vx = lerp(cam.vx, -dx/escala/dt, .55);
+    cam.vy = lerp(cam.vy, -dy/escala/dt, .55);
+    arrastre.movido += Math.abs(dx) + Math.abs(dy);
+    arrastre.x = e.clientX; arrastre.y = e.clientY; arrastre.ult = ahora;
+    limitarCamara();
+    if (arrastre.movido > 14) huboGesto = true;
+  }
+});
+
+function soltar(e){
+  punteros.delete(e.pointerId);
+  if (punteros.size < 2) pellizco = null;
+  if (punteros.size === 1){ // quedó un dedo tras el pellizco: seguir arrastrando
+    const p = [...punteros.entries()][0];
+    arrastre = { x: p[1].x, y: p[1].y, x0: p[1].x, y0: p[1].y,
+                 t0: performance.now(), movido: 99, ult: performance.now() };
+    return;
+  }
+  if (punteros.size === 0 && arrastre){
+    const ahora = performance.now();
+    const dur = ahora - arrastre.t0;
+    if (arrastre.movido < 12 && dur < 450){
+      const x = arrastre.x0, y = arrastre.y0;
+      if (!tocar(x, y)){
+        // dos toques seguidos en el vacío: acercar o alejar
+        if (ahora - ultimoToque < 320 && Math.hypot(x-ultimoX, y-ultimoY) < 44){
+          const cerca = cam.k < AJ.umbralDeFoco + .3;
+          irA(cerca ? aMundoX(x) : MUNDO_W/2,
+              cerca ? aMundoY(y) : hogarY,
+              cerca ? AJ.umbralDeFoco + .55 : 1, 720);
+          ultimoToque = 0;
+        } else {
+          ultimoToque = ahora; ultimoX = x; ultimoY = y;
+        }
+      }
+    }
+    arrastre = null;
+  }
+}
+cv.addEventListener("pointerup", soltar);
+cv.addEventListener("pointercancel", soltar);
+
+cv.addEventListener("wheel", e => {
+  if (bloqueado) return;
+  e.preventDefault();
+  tween = null;
+  const ax = aMundoX(e.clientX), ay = aMundoY(e.clientY);
+  cam.k = clamp(cam.k * Math.pow(1.0016, -e.deltaY), .96, AJ.zoomMaximo);
+  escala = ajuste * cam.k;
+  cam.x = ax - (e.clientX - cw/2)/escala;
+  cam.y = ay - (e.clientY - ch/2)/escala;
+  limitarCamara();
+  huboGesto = true;
+}, { passive: false });
+
+/* --- tocar una estrella ------------------------------------------------ */
+function tocar(px, py){
+  // la dorada primero: es la más grande y está apartada
+  const gx = aPantallaX(dorada.x), gy = aPantallaY(dorada.y);
+  if (Math.hypot(px-gx, py-gy) < Math.max(34, dorada.r * 5)){
+    tocarDorada();
+    return true;
+  }
+  let mejor = null, mejorD = Infinity;
+  const tam = Math.pow(cam.k, .45);
+  for (const s of estrellas){
+    if (s.enc < .2) continue;
+    const sx = aPantallaX(s.x), sy = aPantallaY(s.y);
+    if (sx < -60 || sx > cw+60 || sy < -60 || sy > ch+60) continue;
+    const d = Math.hypot(px-sx, py-sy);
+    // área táctil siempre >= 44px de diámetro, aunque la estrella se vea chica
+    const alcance = Math.max(22, s.r * tam * 4.5);
+    if (d < alcance && d < mejorD){ mejorD = d; mejor = s; }
+  }
+  if (mejor){ abrirHoja(mejor); return true; }
+  return false;
+}
+
+/* ======================================================================
+   Tarjeta de razón
+   ====================================================================== */
+const hoja = $("#hoja"), velo = $("#velo");
+let abierta = null, abiertaEn = 0;
+
+function abrirHoja(s){
+  abierta = s; abiertaEn = performance.now();
+  // el "click" que el navegador dispara después del pointerup caería sobre el
+  // velo y cerraría la tarjeta en el mismo toque: lo desactivamos un momento
+  velo.style.pointerEvents = "none";
+  setTimeout(() => { velo.style.pointerEvents = ""; }, 420);
+  const g = grupos[s.grupo];
+  $("#h-constelacion").textContent = g.nombre;
+  $("#h-numero").textContent = String(s.n + 1).padStart(2, "0") + " / " + TOTAL;
+  $("#h-texto").textContent = s.texto;
+  hoja.style.transform = "";
+  hoja.classList.add("abierta");
+  velo.classList.add("visible");
+  hoja.setAttribute("aria-hidden", "false");
+  // subir la estrella para que no quede tapada por la tarjeta
+  const kDestino = Math.max(cam.k, AJ.umbralDeFoco + .15);
+  const sTmp = ajuste * kDestino;
+  irA(s.x, s.y + (ch*0.16)/sTmp, kDestino, 820);
+}
+
+function cerrarHoja(){
+  if (!abierta) return;
+  const s = abierta; abierta = null;
+  hoja.classList.remove("abierta");
+  hoja.style.transform = "";
+  velo.classList.remove("visible");
+  hoja.setAttribute("aria-hidden", "true");
+  if (!s.leida){
+    s.leida = true;
+    s.destello = performance.now();   // se enciende de su color
+    guardar();
+    actualizarContador();
+    if (leidas() === TOTAL && !doradaAbierta){
+      setTimeout(() => decir("Ya están las 35. Busca la estrella dorada.", 4200), 900);
+    }
+  }
+}
+// cerrar a petición de ella, nunca por el rebote del mismo toque que la abrió
+function cerrarPorToque(){
+  if (performance.now() - abiertaEn < 340) return;
+  cerrarHoja();
+}
+$("#cerrar-hoja").addEventListener("click", cerrarPorToque);
+velo.addEventListener("click", cerrarPorToque);
+document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarPorToque(); });
+
+// deslizar la tarjeta hacia abajo para cerrarla
+(function(){
+  let y0 = null, dy = 0;
+  hoja.addEventListener("pointerdown", e => {
+    if (e.target.closest("#cerrar-hoja")) return;
+    y0 = e.clientY; dy = 0;
+    hoja.style.transition = "none";
+  });
+  hoja.addEventListener("pointermove", e => {
+    if (y0 === null) return;
+    dy = Math.max(0, e.clientY - y0);
+    hoja.style.transform = "translateY(" + dy + "px)";
+  });
+  const fin = () => {
+    if (y0 === null) return;
+    hoja.style.transition = "";
+    if (dy > 70) cerrarPorToque(); else hoja.style.transform = "";
+    y0 = null;
+  };
+  hoja.addEventListener("pointerup", fin);
+  hoja.addEventListener("pointercancel", fin);
+})();
+
+/* ======================================================================
+   Contador, aviso y rótulos
+   ====================================================================== */
+const leidas = () => estrellas.reduce((a, s) => a + (s.leida ? 1 : 0), 0);
+function actualizarContador(){
+  $("#cont-num").textContent = leidas() + " / " + TOTAL;
+}
+let guiaHasta = 0;
+$("#contador").addEventListener("click", () => {
+  guiaHasta = performance.now() + 2800;   // resalta un momento las que faltan
+});
+
+const aviso = $("#aviso");
+let avisoTimer = null;
+function decir(txt, ms){
+  aviso.textContent = txt;
+  aviso.classList.add("visible");
+  clearTimeout(avisoTimer);
+  avisoTimer = setTimeout(() => aviso.classList.remove("visible"), ms || 2800);
+}
+
+/* ======================================================================
+   Estrella dorada y carta
+   ====================================================================== */
+const carta = $("#carta");
+function tocarDorada(){
+  const faltan = TOTAL - leidas();
+  if (faltan > 0){
+    decir(faltan === 1
+      ? CONTENIDO.cielo.avisoDoradaUna
+      : CONTENIDO.cielo.avisoDorada.replace("{n}", faltan), 3200);
+    irA(dorada.wx, dorada.wy - 40, Math.max(cam.k, 1.5), 800);
+    return;
+  }
+  doradaAbierta = true; guardar();
+  carta.classList.add("visible");
+  carta.scrollTop = 0;
+  bloqueado = true;
+}
+$("#btn-final").addEventListener("click", iniciarFinal);
+function cerrarCarta(){
+  if (!carta.classList.contains("visible") || modoFinal > 0) return;
+  carta.classList.remove("visible");
+  bloqueado = false;
+}
+$("#cerrar-carta").addEventListener("click", cerrarCarta);
+document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarCarta(); });
+
+/* ======================================================================
+   Transición final: las estrellas forman una cruz
+   ====================================================================== */
+let modoFinal = 0;        // 0 nada, si >0 es el instante en que empezó
+let objetivos = null;
+
+/* El corazón se calcula a partir del número de estrellas que haya, así que
+   sigue saliendo bien si agregas o quitas razones en CONTENIDO.
+   Se usa la curva clásica del corazón y se reparten las estrellas por
+   longitud de arco, para que queden a distancias iguales y no amontonadas
+   en las curvas cerradas. */
+const CORAZON = { cx: 500, cy: 900, ancho: 580 };
+let PUNTOS_CORAZON = [], PUNTA_CORAZON = null;
+
+(function trazarCorazon(){
+  const N = estrellas.length + 1;      // +1: la punta de abajo es de la dorada
+  const M = 1800;
+  const curva = [];
+  for (let i = 0; i <= M; i++){
+    const t = i / M * Math.PI * 2;
+    const x = 16 * Math.pow(Math.sin(t), 3);
+    const y = 13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t);
+    curva.push([x, -y]);               // en pantalla la y crece hacia abajo
+  }
+  const acum = [0];
+  for (let i = 1; i < curva.length; i++){
+    acum.push(acum[i-1] + Math.hypot(curva[i][0]-curva[i-1][0], curva[i][1]-curva[i-1][1]));
+  }
+  const total = acum[acum.length-1];
+
+  const crudos = [];
+  let j = 0;
+  for (let k = 0; k < N; k++){
+    const meta = total * k / N;
+    while (j < acum.length-1 && acum[j+1] < meta) j++;
+    crudos.push(curva[j]);
+  }
+
+  // llevar la curva al tamaño y al sitio que queremos
+  let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+  curva.forEach(p => {
+    x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]);
+    y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]);
+  });
+  const esc = CORAZON.ancho / (x1 - x0);
+  CORAZON.w = CORAZON.ancho;
+  CORAZON.h = (y1 - y0) * esc;
+  CORAZON.arriba = CORAZON.cy - CORAZON.h/2;
+  CORAZON.abajo  = CORAZON.cy + CORAZON.h/2;
+  const mx = (x0 + x1)/2, my = (y0 + y1)/2;
+  const puestos = crudos.map(p => [CORAZON.cx + (p[0]-mx)*esc, CORAZON.cy + (p[1]-my)*esc]);
+
+  // la punta de abajo (el punto más bajo) se reserva para la dorada
+  let iPunta = 0;
+  puestos.forEach((p, i) => { if (p[1] > puestos[iPunta][1]) iPunta = i; });
+  PUNTA_CORAZON = puestos[iPunta];
+  PUNTOS_CORAZON = puestos.filter((p, i) => i !== iPunta);
+})();
+
+function construirCorazon(){
+  const libres = estrellas.slice();
+  const mapa = new Map();
+  PUNTOS_CORAZON.forEach(p => {
+    if (!libres.length) return;
+    let mejor = 0, d = Infinity;
+    libres.forEach((s, i) => {
+      const dd = (s.wx-p[0])*(s.wx-p[0]) + (s.wy-p[1])*(s.wy-p[1]);
+      if (dd < d){ d = dd; mejor = i; }
+    });
+    mapa.set(libres[mejor], p);
+    libres.splice(mejor, 1);
+  });
+  libres.forEach(s => mapa.set(s, [CORAZON.cx, CORAZON.cy]));  // por si sobra alguna
+  return mapa;
+}
+
+// El corazón arriba y el texto abajo, sin tocarse, sea cual sea la pantalla:
+// se mide de verdad el alto del bloque de texto y el corazón ocupa lo que queda.
+function encuadreFinal(){
+  const bloque = Math.max(200, $("#final").offsetHeight) + 58;
+  const libre  = Math.max(170, ch - bloque - 40);
+  const s = Math.min(cw * .86 / CORAZON.w, libre * .92 / CORAZON.h);
+  const k = clamp(s / ajuste, .3, 8);
+  const centro = 40 + libre/2;                       // dónde va el centro del corazón
+  return { x: CORAZON.cx, y: CORAZON.cy - (centro - ch/2) / (ajuste * k), k: k };
+}
+
+function iniciarFinal(){
+  carta.classList.remove("visible");
+  cerrarHoja();
+  objetivos = construirCorazon();
+  estrellas.forEach(s => {
+    const p = objetivos.get(s);
+    s.ox = s.wx; s.oy = s.wy; s.tx = p[0]; s.ty = p[1];
+    s.retraso = Math.random() * 700;
+  });
+  dorada.ox = dorada.wx; dorada.oy = dorada.wy;
+  dorada.tx = PUNTA_CORAZON[0]; dorada.ty = PUNTA_CORAZON[1];
+
+  document.querySelectorAll(".ui").forEach(el => el.classList.add("oculto"));
+  nebMeta = .5;
+  bloqueado = true;
+  modoFinal = performance.now();
+
+  tween = { t0: performance.now(), dur: 2600,
+    de: { x: cam.x, y: cam.y, k: cam.k },
+    a:  encuadreFinal(),
+    libre: true };
+
+  setTimeout(() => $("#final").classList.add("visible"), 3400);
+}
+
+/* ======================================================================
+   Estrella fugaz (de vez en cuando, sin exagerar)
+   ====================================================================== */
+let fugaz = null, proximaFugaz = 9000;
+function quizasFugaz(t, dt){
+  if (reducido) return;
+  if (fugaz){
+    fugaz.t += dt;
+    if (fugaz.t > fugaz.dur) fugaz = null;
+    return;
+  }
+  proximaFugaz -= dt;
+  if (proximaFugaz <= 0){
+    proximaFugaz = 16000 + Math.random() * 22000;
+    const desdeIzq = Math.random() < .5;
+    fugaz = {
+      t: 0, dur: 1100 + Math.random()*500,
+      x0: desdeIzq ? -0.1*cw : 1.1*cw,
+      y0: (.05 + Math.random()*.35) * ch,
+      dx: (desdeIzq ? 1 : -1) * cw * .8,
+      dy: ch * .34
+    };
+  }
+}
+function dibujarFugaz(){
+  if (!fugaz) return;
+  const p = fugaz.t / fugaz.dur;
+  const e = easeOut(p);
+  const x = fugaz.x0 + fugaz.dx * e, y = fugaz.y0 + fugaz.dy * e;
+  const cola = 90 * Math.sin(Math.PI * p);
+  const ang = Math.atan2(fugaz.dy, fugaz.dx);
+  const g = ctx.createLinearGradient(x, y, x - Math.cos(ang)*cola, y - Math.sin(ang)*cola);
+  g.addColorStop(0, "rgba(251,243,228,.75)");
+  g.addColorStop(1, "rgba(251,243,228,0)");
+  ctx.globalAlpha = Math.sin(Math.PI * p);
+  ctx.strokeStyle = g; ctx.lineWidth = 1.4; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(x, y);
+  ctx.lineTo(x - Math.cos(ang)*cola, y - Math.sin(ang)*cola); ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+
+/* ======================================================================
+   Rótulos en el lienzo (versales con tracking, como el diseño)
+   ====================================================================== */
+function rotulo(txt, x, y, px, alfa, color){
+  if (alfa <= .01) return;
+  ctx.font = "500 " + px + 'px "Karla", system-ui, sans-serif';
+  ctx.globalAlpha = alfa;
+  ctx.fillStyle = color || "rgba(155,163,189,1)";
+  ctx.textBaseline = "middle";
+  const esp = px * .26;
+  let ancho = 0;
+  for (const ch2 of txt) ancho += ctx.measureText(ch2).width + esp;
+  ancho -= esp;
+  let cx = x - ancho/2;
+  for (const ch2 of txt){
+    ctx.fillText(ch2, cx, y);
+    cx += ctx.measureText(ch2).width + esp;
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* ======================================================================
+   Bucle de dibujo
+   ====================================================================== */
+let encendido = -1;       // instante en que arrancó el encendido del cielo
+let revelLineas = 0;
+let ultimo = performance.now();
+let focoActual = -1;
+
+const elFoco   = $("#foco");
+const elTitulo = $("#titulo-cielo");
+
+function cuadro(ahora){
+  requestAnimationFrame(cuadro);
+  const dt = Math.min(48, ahora - ultimo); ultimo = ahora;
+  const t = ahora / 1000;
+
+  /* --- cámara --- */
+  if (tween){
+    const p = clamp((ahora - tween.t0) / tween.dur, 0, 1), e = easeInOut(p);
+    cam.x = lerp(tween.de.x, tween.a.x, e);
+    cam.y = lerp(tween.de.y, tween.a.y, e);
+    cam.k = lerp(tween.de.k, tween.a.k, e);
+    escala = ajuste * cam.k;
+    if (!tween.libre) limitarCamara();
+    if (p >= 1) tween = null;
+  } else if (!arrastre && !pellizco && !bloqueado){
+    if (Math.abs(cam.vx) > 1e-5 || Math.abs(cam.vy) > 1e-5){
+      cam.x += cam.vx * dt; cam.y += cam.vy * dt;
+      const f = Math.pow(.0022, dt/1000);      // inercia suave
+      cam.vx *= f; cam.vy *= f;
+      limitarCamara();
+    }
+  }
+  escala = ajuste * cam.k;
+
+  ctx.clearRect(0, 0, cw, ch);
+  dibujarNebulosas(t, dt);
+
+  /* --- encendido progresivo --- */
+  if (encendido > 0){
+    const s = (ahora - encendido) / 1000;
+    for (const f of fondo) f.enc = clamp((s - f.t0) / .9, 0, 1);
+    for (const e of estrellas) e.enc = clamp((s - e.t0) / 1.0, 0, 1);
+    dorada.enc = clamp((s - .25) / 1.4, 0, 1);
+    revelLineas = clamp((s - 2.4) / 2.0, 0, 1);
+  }
+
+  const tam = Math.pow(cam.k, .45);
+  const enFinal = modoFinal > 0;
+  const pFinal = enFinal ? clamp((ahora - modoFinal) / 2600, 0, 1) : 0;
+
+  /* --- estrellas decorativas --- */
+  const atenuaFondo = enFinal ? lerp(1, .28, pFinal) : 1;
+  const repX = cw * .62 * Math.pow(cam.k, .35);
+  const repY = ch * .62 * Math.pow(cam.k, .35);
+  const derX = (MUNDO_W/2 - cam.x) * escala;
+  const derY = (MUNDO_H/2 - cam.y) * escala;
+  for (const f of fondo){
+    if (f.enc <= 0) continue;
+    const sx = derX * f.prof + f.u * repX + cw/2;
+    const sy = derY * f.prof + f.v * repY + ch/2;
+    if (sx < -20 || sx > cw+20 || sy < -20 || sy > ch+20) continue;
+    const tw = reducido ? 1 : .68 + .32 * Math.sin(t * f.vel + f.fase);
+    pintar(SP.nucleo, sx, sy, Math.max(.9, f.r * tam * 2.4), f.a * tw * f.enc * atenuaFondo);
+  }
+
+  /* --- foco: qué constelación está centrada --- */
+  let nuevoFoco = -1;
+  if (abierta){
+    nuevoFoco = abierta.grupo;           // que el versículo de arriba concuerde
+  } else if (!enFinal && cam.k >= AJ.umbralDeFoco){
+    let mejorD = .40;
+    grupos.forEach((g, i) => {
+      const sx = aPantallaX(g.cx), sy = aPantallaY(g.cy);
+      const d = Math.hypot((sx - cw/2)/cw, (sy - ch/2)/ch);
+      if (d < mejorD){ mejorD = d; nuevoFoco = i; }
+    });
+  }
+  if (nuevoFoco !== focoActual){
+    focoActual = nuevoFoco;
+    if (focoActual >= 0){
+      const g = grupos[focoActual];
+      elFoco.querySelector(".f-nombre").textContent = g.nombre;
+      elFoco.querySelector(".f-verso").textContent = "“" + g.versiculo + "”";
+      elFoco.querySelector(".f-cita").textContent = g.cita;
+      elFoco.classList.add("visible");
+      elTitulo.classList.add("oculto");
+    } else {
+      elFoco.classList.remove("visible");
+      if (encendido > 0 && !enFinal) elTitulo.classList.remove("oculto");
+    }
+  }
+
+  /* --- líneas de las constelaciones --- */
+  const desLineas = enFinal ? 1 - clamp(pFinal * 1.6, 0, 1) : 1;
+  if (revelLineas > 0 && desLineas > 0){
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    grupos.forEach((g, i) => {
+      const activo = i === focoActual;
+      g.brillo = lerp(g.brillo, activo ? 1 : 0, 1 - Math.pow(.004, dt/1000));
+      if (activo){
+        g.prog = g.dibujada ? 1 : clamp(g.prog + dt/1150, 0, 1);
+        if (g.prog >= 1) g.dibujada = true;
+      } else if (!g.dibujada){
+        g.prog = Math.max(0, g.prog - dt/900);
+      }
+
+      // capa de fondo: siempre tenue, como en el diseño
+      const aBase = .105 * revelLineas * desLineas;
+      ctx.strokeStyle = "rgba(196,210,246," + aBase.toFixed(3) + ")";
+      ctx.lineWidth = .8;
+      ctx.beginPath();
+      for (const seg of g.segmentos){
+        ctx.moveTo(aPantallaX(seg.a.x), aPantallaY(seg.a.y));
+        ctx.lineTo(aPantallaX(seg.b.x), aPantallaY(seg.b.y));
+      }
+      ctx.stroke();
+
+      // capa brillante: se traza sola cuando la constelación está centrada
+      if (g.brillo > .01){
+        const aLuz = .55 * g.brillo * desLineas;
+        ctx.strokeStyle = "rgba(214,226,255," + aLuz.toFixed(3) + ")";
+        ctx.lineWidth = 1.05;
+        let restante = g.largoTotal * (g.dibujada ? 1 : g.prog);
+        ctx.beginPath();
+        for (const seg of g.segmentos){
+          if (restante <= 0) break;
+          const ax = aPantallaX(seg.a.x), ay = aPantallaY(seg.a.y);
+          const bx = aPantallaX(seg.b.x), by = aPantallaY(seg.b.y);
+          const f = Math.min(1, restante / seg.len);
+          ctx.moveTo(ax, ay);
+          ctx.lineTo(lerp(ax, bx, f), lerp(ay, by, f));
+          restante -= seg.len;
+        }
+        ctx.stroke();
+      }
+
+      // rótulo del grupo
+      const ly = aPantallaY(g.maxY) + 26;
+      rotulo(g.nombre, aPantallaX(g.cx), ly,
+             clamp(10 * Math.pow(cam.k, .25), 9.5, 13),
+             (.42 + .5 * g.brillo) * revelLineas * desLineas,
+             "rgba(180,192,220,1)");
+    });
+  }
+
+  /* --- estrellas con razón --- */
+  const guia = ahora < guiaHasta;
+  for (const s of estrellas){
+    if (s.enc <= 0) continue;
+    if (enFinal){
+      const p = clamp((ahora - modoFinal - s.retraso) / 2200, 0, 1);
+      const e = easeInOut(p);
+      s.x = lerp(s.ox, s.tx, e); s.y = lerp(s.oy, s.ty, e);
+    }
+    const sx = aPantallaX(s.x), sy = aPantallaY(s.y);
+    if (sx < -70 || sx > cw+70 || sy < -70 || sy > ch+70) continue;
+
+    if (s.leida) s.halo = Math.min(1, s.halo + dt/800);
+    const tw = reducido ? 1 : .72 + .28 * Math.sin(t * s.vel + s.fase);
+    let a = s.enc * (s.leida ? .98 : .82) * tw;
+    if (guia && !s.leida) a = Math.min(1, a + .35 * (.5 + .5*Math.sin(t*5)));
+    const rr = s.r * tam;
+    const ro = s.halo;          // 0 = sin leer (blanca), 1 = leída (su color)
+
+    // halo permanente: así sabe cuáles ya leyó aunque esté lejos
+    if (ro > .01){
+      const lat = .5 + .5 * Math.sin(t * .7 + s.fase);
+      pintar(SP.aro, sx, sy, rr * 6.4, ro * (.38 + .18*lat) * s.enc);
+    }
+    // la estrella pasa de blanco cálido a rosa: su color
+    if (ro < .999){
+      pintar(SP.resplandor, sx, sy, rr * 7.5, a * .55 * (1-ro));
+      pintar(SP.nucleo,     sx, sy, rr * 3.0, a * (1-ro));
+    }
+    if (ro > .001){
+      pintar(SP.rosaRes, sx, sy, rr * 8.4, a * .80 * ro);
+      pintar(SP.rosaNuc, sx, sy, rr * 3.4, a * ro);
+    }
+    // fogonazo del momento en que la marca
+    if (s.destello){
+      const p = (ahora - s.destello) / 1200;
+      if (p >= 1) s.destello = 0;
+      else {
+        const e = easeOut(p);
+        pintar(SP.rosaRes, sx, sy, rr * (7 + 16*e), (1-p) * (1-p) * .55);
+      }
+    }
+  }
+
+  /* --- la estrella dorada --- */
+  if (dorada.enc > 0){
+    if (enFinal){
+      const p = clamp((ahora - modoFinal) / 2400, 0, 1), e = easeInOut(p);
+      dorada.x = lerp(dorada.ox, dorada.tx, e);
+      dorada.y = lerp(dorada.oy, dorada.ty, e);
+    }
+    const sx = aPantallaX(dorada.x), sy = aPantallaY(dorada.y);
+    const listo = leidas() === TOTAL;
+    const pulso = reducido ? .9 : .70 + .30 * Math.sin(t * (listo ? 1.15 : .72));
+    const rr = dorada.r * tam * (listo ? 1.08 : 1);
+    pintar(SP.oroRes, sx, sy, rr * (9 + pulso*2.6), dorada.enc * (.34 + .26*pulso));
+    pintar(SP.oroRes, sx, sy, rr * 4.4, dorada.enc * (.42 + .2*pulso));
+    pintar(SP.oroNuc, sx, sy, rr * 2.0, dorada.enc * (.86 + .14*pulso));
+  }
+
+  quizasFugaz(ahora, dt);
+  dibujarFugaz();
+  ctx.globalAlpha = 1;
+}
+
+/* ======================================================================
+   Música (el archivo no viene incluido: pon musica.mp3 junto al index)
+   ====================================================================== */
+(function(){
+  const audio = $("#audio"), boton = $("#musica");
+  let sonando = false;
+  boton.addEventListener("click", () => {
+    if (sonando){ audio.pause(); sonando = false; boton.classList.remove("sonando"); return; }
+    audio.volume = 0;
+    audio.play().then(() => {
+      sonando = true; boton.classList.add("sonando");
+      let v = 0;                                  // subir el volumen despacio
+      const s = setInterval(() => {
+        v = Math.min(.42, v + .02); audio.volume = v;
+        if (v >= .42) clearInterval(s);
+      }, 90);
+    }).catch(() => { boton.style.display = "none"; });   // no hay archivo: se esconde
+  });
+  audio.addEventListener("error", () => { boton.style.display = "none"; });
+})();
+
+/* ======================================================================
+   Volcado del contenido al HTML + arranque
+   ====================================================================== */
+function texto(sel, val){ const el = $(sel); if (el) el.textContent = val; }
+(function pintarTextos(){
+  const A = CONTENIDO.apertura, C = CONTENIDO.cielo, D = CONTENIDO.dorada, F = CONTENIDO.final;
+  texto("#ap-versiculo", A.versiculo);
+  texto("#ap-cita", A.cita);
+  texto("#ap-saludo", A.saludo);
+  texto("#ap-boton", A.boton);
+  texto("#tc-rotulo", C.rotulo);
+  texto("#tc-sub", C.subtitulo);
+  texto("#h-pie", C.piePanel);
+  texto("#ca-fecha", D.fecha);
+  texto("#ca-rotulo", D.rotulo);
+  texto("#ca-boton", D.boton);
+  const cuerpo = $("#ca-cuerpo");
+  D.parrafos.forEach(p => {
+    const el = document.createElement("p");
+    el.textContent = p; cuerpo.appendChild(el);
+  });
+  const firma = $("#ca-firma");
+  firma.innerHTML = "";
+  D.firma.split("\n").forEach((l, i) => {
+    if (i) firma.appendChild(document.createElement("br"));
+    firma.appendChild(document.createTextNode(l));
+  });
+  texto("#fi-frase", F.frase);
+  const ta = $("#fi-teamo"); ta.innerHTML = "";
+  F.teAmo.split("\n").forEach((l, i) => {
+    if (i) ta.appendChild(document.createElement("br"));
+    ta.appendChild(document.createTextNode(l));
+  });
+  texto("#fi-fecha", F.fecha);
+  actualizarContador();
+})();
+
+medir();
+window.addEventListener("resize", medir);
+window.addEventListener("orientationchange", () => setTimeout(medir, 220));
+requestAnimationFrame(cuadro);
+
+$("#btn-entrar").addEventListener("click", () => {
+  $("#apertura").classList.add("fuera");
+  nebMeta = 1;
+  // el cielo se enciende estrella por estrella, en unos 3.5 s
+  const r = rng(147004);
+  estrellas.forEach(s => { s.t0 = .35 + r() * (reducido ? .5 : 2.9); });
+  encendido = performance.now();
+  setTimeout(() => {
+    document.querySelectorAll(".ui").forEach(el => {
+      if (el.id !== "foco") el.classList.add("visible");
+    });
+  }, reducido ? 600 : 2600);
+  // la ayuda aparece una sola vez, con su propio fondo, y se va sola
+  const ayuda = esTactil ? CONTENIDO.cielo.pista : CONTENIDO.cielo.pistaEscritorio;
+  const t1 = setTimeout(() => decir(ayuda, 5600), reducido ? 900 : 3400);
+  cv.addEventListener("pointerdown", () => {
+    clearTimeout(t1);
+    if (aviso.textContent === ayuda) aviso.classList.remove("visible");
+  }, { once: true });
+});
+
+})();
+</script>
+</script>
+
+</body>
+</html>

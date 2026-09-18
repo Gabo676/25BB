@@ -1,0 +1,10 @@
+﻿# Archivos de diseno y exportaciones
+Design.html
+Design.pdf
+*.pdf
+
+# Archivos del sistema y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

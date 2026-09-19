@@ -407,7 +407,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <p class="rotulo f-fecha" id="fi-fecha"></p>
 </div>
 
-<audio id="audio" loop preload="none" src="./Yiruma.mp3"></audio>
+<audio id="audio" loop preload="auto" src="./Yiruma.mp3"></audio>
 
 <script>
 /* ==========================================================================
@@ -1601,29 +1601,87 @@ function cuadro(ahora){
 }
 
 /* ======================================================================
-   Música (el archivo no viene incluido: pon musica.mp3 junto al index)
+   Música (reproducción automática en bucle, clic para silenciar/reanudar)
    ====================================================================== */
 (function(){
   const audio = $("#audio"), boton = $("#musica");
   let sonando = false;
+  let usuarioSilencio = false;
   audio.loop = true;
-  boton.addEventListener("click", () => {
-    if (sonando){ audio.pause(); sonando = false; boton.classList.remove("sonando"); return; }
+
+  function subirVolumen(){
+    let v = 0;
+    const s = setInterval(() => {
+      if (!sonando){ clearInterval(s); return; }
+      v = Math.min(.42, v + .02);
+      audio.volume = v;
+      if (v >= .42) clearInterval(s);
+    }, 90);
+  }
+
+  function reproducir(){
+    if (sonando || usuarioSilencio) return;
     audio.volume = 0;
     audio.play().then(() => {
-      sonando = true; boton.classList.add("sonando");
-      let v = 0;                                  // subir el volumen despacio
-      const s = setInterval(() => {
-        v = Math.min(.42, v + .02); audio.volume = v;
-        if (v >= .42) clearInterval(s);
-      }, 90);
-    }).catch(() => { boton.style.display = "none"; });   // no hay archivo: se esconde
+      sonando = true;
+      boton.classList.add("sonando");
+      boton.setAttribute("aria-label", "Silenciar música");
+      subirVolumen();
+    }).catch(err => {
+      if (err && err.name !== "NotAllowedError"){
+        boton.style.display = "none";
+      }
+    });
+  }
+
+  function pausar(){
+    audio.pause();
+    sonando = false;
+    boton.classList.remove("sonando");
+    boton.setAttribute("aria-label", "Activar música");
+  }
+
+  // Intento de inicio automático inmediato
+  reproducir();
+
+  // Si el navegador requiere interacción previa para reproducir audio con sonido,
+  // se iniciará al primer clic, toque o al pulsar el botón de entrar
+  function desbloquear(){
+    if (!sonando && !usuarioSilencio){
+      reproducir();
+    }
+  }
+  ["click", "touchstart", "pointerdown", "keydown"].forEach(ev => {
+    window.addEventListener(ev, desbloquear, { once: true, passive: true });
   });
+  const btnEntrar = $("#btn-entrar");
+  if (btnEntrar) btnEntrar.addEventListener("click", desbloquear);
+
+  // El botón ahora sirve para silenciar o reanudar
+  boton.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (sonando){
+      usuarioSilencio = true;
+      pausar();
+    } else {
+      usuarioSilencio = false;
+      audio.play().then(() => {
+        sonando = true;
+        boton.classList.add("sonando");
+        boton.setAttribute("aria-label", "Silenciar música");
+        audio.volume = .42;
+      }).catch(() => {});
+    }
+  });
+
   audio.addEventListener("ended", () => {
     audio.currentTime = 0;
-    audio.play().catch(() => {});
+    if (sonando) audio.play().catch(() => {});
   });
-  audio.addEventListener("error", () => { boton.style.display = "none"; });
+
+  audio.addEventListener("error", () => {
+    boton.style.display = "none";
+  });
 })();
 
 /* ======================================================================

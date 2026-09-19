@@ -407,7 +407,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   <p class="rotulo f-fecha" id="fi-fecha"></p>
 </div>
 
-<audio id="audio" loop preload="none" src="./musica.mp3"></audio>
+<audio id="audio" loop preload="none" src="./Yiruma.mp3"></audio>
 
 <script>
 /* ==========================================================================
@@ -1606,6 +1606,7 @@ function cuadro(ahora){
 (function(){
   const audio = $("#audio"), boton = $("#musica");
   let sonando = false;
+  audio.loop = true;
   boton.addEventListener("click", () => {
     if (sonando){ audio.pause(); sonando = false; boton.classList.remove("sonando"); return; }
     audio.volume = 0;
@@ -1617,6 +1618,10 @@ function cuadro(ahora){
         if (v >= .42) clearInterval(s);
       }, 90);
     }).catch(() => { boton.style.display = "none"; });   // no hay archivo: se esconde
+  });
+  audio.addEventListener("ended", () => {
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
   });
   audio.addEventListener("error", () => { boton.style.display = "none"; });
 })();
